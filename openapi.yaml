@@ -1,0 +1,404 @@
+openapi: 3.0.3
+info:
+  title: UUIDv8 and Snowflake ID Generator API
+  description: |
+    API para geração de UUIDs versão 8 e Snowflake IDs.
+    
+    Esta API oferece endpoints para gerar identificadores únicos em diferentes formatos:
+    - UUID v8: Identificadores universalmente únicos versão 8
+    - Snowflake ID: Identificadores baseados em timestamp usados pelo Twitter
+    
+    Suporte para geração individual e em lote (até 100 IDs por vez).
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desenvolvimento
+  - url: https://api.example.com
+    description: Servidor de produção
+
+paths:
+  /:
+    get:
+      summary: Documentação da API
+      description: Retorna informações sobre a API e seus endpoints
+      tags:
+        - Documentation
+      responses:
+        '200':
+          description: Documentação da API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIDocumentation'
+              example:
+                message: "Welcome to the UUIDv8 API"
+                version: "1.0.0"
+                endpoints:
+                  "/uuid/v8": "Generates UUID v8 (GET/POST)"
+                  "/snowflake": "Generates Snowflake ID (GET)"
+                  "/batch/uuid/v8": "Generates multiple UUID v8 (GET/POST)"
+                  "/batch/snowflake": "Generates multiple Snowflake IDs (GET)"
+
+  /uuid/v8:
+    get:
+      summary: Gerar UUID v8
+      description: Gera um UUID versão 8 com dados padrão
+      tags:
+        - UUID v8
+      responses:
+        '200':
+          description: UUID v8 gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UUIDResponse'
+              example:
+                id: "018f4b4c-1234-8abc-9def-123456789abc"
+                type: "uuid v8"
+                timestamp: "2024-03-15T10:30:00.000Z"
+
+    post:
+      summary: Gerar UUID v8 com dados customizados
+      description: Gera um UUID versão 8 com dados customizados fornecidos no body
+      tags:
+        - UUID v8
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UUIDv8Request'
+            example:
+              data: "custom-data-string"
+      responses:
+        '200':
+          description: UUID v8 gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UUIDResponseWithCustomData'
+              example:
+                id: "018f4b4c-1234-8abc-9def-123456789abc"
+                type: "uuid v8"
+                customData: "custom-data-string"
+                timestamp: "2024-03-15T10:30:00.000Z"
+        '400':
+          description: Dados inválidos fornecidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '405':
+          description: Método não permitido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /snowflake:
+    get:
+      summary: Gerar Snowflake ID
+      description: Gera um Snowflake ID único baseado em timestamp
+      tags:
+        - Snowflake
+      responses:
+        '200':
+          description: Snowflake ID gerado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SnowflakeResponse'
+              example:
+                id: "1234567890123456789"
+                type: "snowflake"
+                timestamp: "2024-03-15T10:30:00.000Z"
+        '405':
+          description: Método não permitido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /batch/uuid/v8:
+    get:
+      summary: Gerar múltiplos UUID v8
+      description: Gera múltiplos UUIDs versão 8 (máximo 100)
+      tags:
+        - UUID v8
+        - Batch
+      parameters:
+        - name: count
+          in: query
+          description: Número de UUIDs a serem gerados (padrão: 1, máximo: 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 1
+          example: 5
+      responses:
+        '200':
+          description: UUIDs gerados com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchUUIDResponse'
+              example:
+                ids:
+                  - "018f4b4c-1234-8abc-9def-123456789abc"
+                  - "018f4b4c-5678-8def-9abc-987654321def"
+                count: 2
+                type: "uuid v8"
+                timestamp: "2024-03-15T10:30:00.000Z"
+        '400':
+          description: Parâmetros inválidos (count > 100)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /batch/snowflake:
+    get:
+      summary: Gerar múltiplos Snowflake IDs
+      description: Gera múltiplos Snowflake IDs (máximo 100)
+      tags:
+        - Snowflake
+        - Batch
+      parameters:
+        - name: count
+          in: query
+          description: Número de Snowflake IDs a serem gerados (padrão: 1, máximo: 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 1
+          example: 3
+      responses:
+        '200':
+          description: Snowflake IDs gerados com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchSnowflakeResponse'
+              example:
+                ids:
+                  - "1234567890123456789"
+                  - "1234567890123456790"
+                  - "1234567890123456791"
+                count: 3
+                type: "snowflake"
+                timestamp: "2024-03-15T10:30:00.000Z"
+        '400':
+          description: Parâmetros inválidos (count > 100)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    APIDocumentation:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensagem de boas-vindas
+        version:
+          type: string
+          description: Versão da API
+        endpoints:
+          type: object
+          additionalProperties:
+            type: string
+          description: Lista de endpoints disponíveis
+        examples:
+          type: object
+          additionalProperties:
+            type: string
+          description: Exemplos de uso da API
+
+    UUIDv8Request:
+      type: object
+      properties:
+        data:
+          type: string
+          description: Dados customizados para gerar o UUID v8
+          example: "my-custom-data"
+
+    UUIDResponse:
+      type: object
+      required:
+        - id
+        - type
+        - timestamp
+      properties:
+        id:
+          type: string
+          description: UUID v8 gerado
+          example: "018f4b4c-1234-8abc-9def-123456789abc"
+        type:
+          type: string
+          enum: ["uuid v8"]
+          description: Tipo do identificador
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de geração em formato ISO 8601
+
+    UUIDResponseWithCustomData:
+      allOf:
+        - $ref: '#/components/schemas/UUIDResponse'
+        - type: object
+          properties:
+            customData:
+              type: string
+              nullable: true
+              description: Dados customizados utilizados na geração
+              example: "my-custom-data"
+
+    SnowflakeResponse:
+      type: object
+      required:
+        - id
+        - type
+        - timestamp
+      properties:
+        id:
+          type: string
+          description: Snowflake ID gerado
+          example: "1234567890123456789"
+        type:
+          type: string
+          enum: ["snowflake"]
+          description: Tipo do identificador
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de geração em formato ISO 8601
+
+    BatchUUIDResponse:
+      type: object
+      required:
+        - ids
+        - count
+        - type
+        - timestamp
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          description: Lista de UUIDs v8 gerados
+          example:
+            - "018f4b4c-1234-8abc-9def-123456789abc"
+            - "018f4b4c-5678-8def-9abc-987654321def"
+        count:
+          type: integer
+          description: Número de IDs gerados
+          example: 2
+        type:
+          type: string
+          enum: ["uuid v8"]
+          description: Tipo dos identificadores
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de geração em formato ISO 8601
+
+    BatchSnowflakeResponse:
+      type: object
+      required:
+        - ids
+        - count
+        - type
+        - timestamp
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          description: Lista de Snowflake IDs gerados
+          example:
+            - "1234567890123456789"
+            - "1234567890123456790"
+        count:
+          type: integer
+          description: Número de IDs gerados
+          example: 2
+        type:
+          type: string
+          enum: ["snowflake"]
+          description: Tipo dos identificadores
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp de geração em formato ISO 8601
+
+    ErrorResponse:
+      type: object
+      required:
+        - type
+        - error
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: ["error"]
+          description: Tipo da resposta
+        error:
+          type: string
+          description: Mensagem de erro
+          example: "Bad request"
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp do erro em formato ISO 8601
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    MethodNotAllowed:
+      description: Método HTTP não permitido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Documentation
+    description: Endpoints de documentação da API
+  - name: UUID v8
+    description: Operações relacionadas a UUIDs versão 8
+  - name: Snowflake
+    description: Operações relacionadas a Snowflake IDs
+  - name: Batch
+    description: Operações em lote
