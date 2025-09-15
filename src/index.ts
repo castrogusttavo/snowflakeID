@@ -9,202 +9,8 @@ import {UUID} from "./class/uuid.class";
 import {Snowflake} from './class/snowflake.class'
 
 const snowflakeGenerator = new Snowflake(1, 1);
-
-// OpenAPI Specification inline (para garantir que sempre funcione)
-const openApiSpec = {
-    openapi: "3.0.3",
-    info: {
-        title: "UUIDv8 and Snowflake ID Generator API",
-        description: "API para geração de UUIDs versão 8 e Snowflake IDs",
-        version: "1.0.0"
-    },
-    servers: [
-        {
-            url: "http://localhost:3000",
-            description: "Servidor de desenvolvimento"
-        }
-    ],
-    paths: {
-        "/": {
-            get: {
-                summary: "Documentação da API",
-                description: "Retorna informações sobre a API e seus endpoints",
-                tags: ["Documentation"],
-                responses: {
-                    "200": {
-                        description: "Documentação da API",
-                        content: {
-                            "application/json": {
-                                schema: { type: "object" }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/uuid/v8": {
-            get: {
-                summary: "Gerar UUID v8",
-                description: "Gera um UUID versão 8 com dados padrão",
-                tags: ["UUID v8"],
-                responses: {
-                    "200": {
-                        description: "UUID v8 gerado com sucesso",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        id: { type: "string" },
-                                        type: { type: "string" },
-                                        timestamp: { type: "string", format: "date-time" }
-                                    }
-                                },
-                                example: {
-                                    id: "018f4b4c-1234-8abc-9def-123456789abc",
-                                    type: "uuid v8",
-                                    timestamp: "2024-03-15T10:30:00.000Z"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            post: {
-                summary: "Gerar UUID v8 com dados customizados",
-                description: "Gera um UUID versão 8 com dados customizados",
-                tags: ["UUID v8"],
-                requestBody: {
-                    required: true,
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    data: { type: "string" }
-                                }
-                            }
-                        }
-                    }
-                },
-                responses: {
-                    "200": {
-                        description: "UUID v8 gerado com sucesso",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        id: { type: "string" },
-                                        type: { type: "string" },
-                                        customData: { type: "string" },
-                                        timestamp: { type: "string" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/snowflake": {
-            get: {
-                summary: "Gerar Snowflake ID",
-                description: "Gera um Snowflake ID único baseado em timestamp",
-                tags: ["Snowflake"],
-                responses: {
-                    "200": {
-                        description: "Snowflake ID gerado com sucesso",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        id: { type: "string" },
-                                        type: { type: "string" },
-                                        timestamp: { type: "string" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/batch/uuid/v8": {
-            get: {
-                summary: "Gerar múltiplos UUID v8",
-                description: "Gera múltiplos UUIDs versão 8 (máximo 100)",
-                tags: ["UUID v8", "Batch"],
-                parameters: [
-                    {
-                        name: "count",
-                        in: "query",
-                        description: "Número de UUIDs (1-100)",
-                        schema: { type: "integer", minimum: 1, maximum: 100 }
-                    }
-                ],
-                responses: {
-                    "200": {
-                        description: "UUIDs gerados com sucesso",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        ids: { type: "array", items: { type: "string" } },
-                                        count: { type: "integer" },
-                                        type: { type: "string" },
-                                        timestamp: { type: "string" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/batch/snowflake": {
-            get: {
-                summary: "Gerar múltiplos Snowflake IDs",
-                description: "Gera múltiplos Snowflake IDs (máximo 100)",
-                tags: ["Snowflake", "Batch"],
-                parameters: [
-                    {
-                        name: "count",
-                        in: "query",
-                        description: "Número de Snowflake IDs (1-100)",
-                        schema: { type: "integer", minimum: 1, maximum: 100 }
-                    }
-                ],
-                responses: {
-                    "200": {
-                        description: "Snowflake IDs gerados com sucesso",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        ids: { type: "array", items: { type: "string" } },
-                                        count: { type: "integer" },
-                                        type: { type: "string" },
-                                        timestamp: { type: "string" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    tags: [
-        { name: "Documentation", description: "Endpoints de documentação da API" },
-        { name: "UUID v8", description: "Operações relacionadas a UUIDs versão 8" },
-        { name: "Snowflake", description: "Operações relacionadas a Snowflake IDs" },
-        { name: "Batch", description: "Operações em lote" }
-    ]
-};
+// @ts-ignore
+import openApiSpec from '../openapi.yaml';
 
 function serveScalarDocs(res: http.ServerResponse): void {
     const htmlContent = `
@@ -253,7 +59,7 @@ function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): voi
         return;
     }
 
-    const url = new URL(req.url, `http://${req.headers.host}`);
+    const url = new URL(req.url, `https://${req.headers.host}`);
     const path = url.pathname;
 
     try {
@@ -485,3 +291,16 @@ process.on('SIGINT', () => {
         process.exit(0);
     });
 });
+
+/*
+*   ____________________
+*  |,---------------.  |\
+*  ||  *#**#*#****  |= | |
+*  || /*         *\ || | |
+*  || |--[@]^[@]--| || | |
+*  || \   _____   / || | |
+*  ||  \  \___/  / _o| | | __
+*  |`----------------' |/ /~/
+*   ~~~~~~~~~~~~~~~~~~~  / /
+*                        ~~
+*/
