@@ -18,10 +18,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: http://localhost:3000
-    description: Servidor de desenvolvimento
   - url: https://snowflake.coodee.dev/
-    description: Servidor de produção
 
 paths:
   /:
